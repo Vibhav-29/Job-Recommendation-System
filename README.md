@@ -6,15 +6,22 @@ I use Flask for the web framework, SQLAlchemy with SQLite for storing users and 
 User Interface Screenshots
 
 Login -Page
+
 <img width="975" height="607" alt="image" src="https://github.com/user-attachments/assets/10a76b78-0b5f-4fa1-a92a-c43382bc6daf" />
 
-image
 Profile
-image
+
+<img width="975" height="337" alt="image" src="https://github.com/user-attachments/assets/afc7dc72-585f-4631-8806-dcff25e0524e" />
+
 Home Page
-image
+
+<img width="1097" height="533" alt="image" src="https://github.com/user-attachments/assets/a38de555-7cd9-49e1-bd40-3c9cc99cdc94" />
+
 Dashboard
-image
+
+<img width="975" height="447" alt="image" src="https://github.com/user-attachments/assets/366f227d-92a5-4fb6-8ddd-d8d60ca191f2" />
+
+
 Job Match AI improves productivity in job search and provides relevant recommendations using NLP-based skill mapping and machine learning.
 
 The proposed JobMatch AI successfully:

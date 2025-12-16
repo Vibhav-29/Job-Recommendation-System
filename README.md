@@ -6,6 +6,8 @@ I use Flask for the web framework, SQLAlchemy with SQLite for storing users and 
 User Interface Screenshots
 
 Login -Page
+<img width="975" height="607" alt="image" src="https://github.com/user-attachments/assets/10a76b78-0b5f-4fa1-a92a-c43382bc6daf" />
+
 image
 Profile
 image

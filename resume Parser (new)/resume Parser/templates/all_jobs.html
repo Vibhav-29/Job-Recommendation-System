@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="panel-glass reveal">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+        <div class="mb-2">
+            <h3 class="panel-title mb-1">All Jobs</h3>
+            <p class="text-soft small mb-0">
+                Showing
+                {% if total_jobs > 0 %}
+                    {{ (page-1)*per_page + 1 }} –
+                    {{ (page-1)*per_page + jobs|length }}
+                {% else %}
+                    0
+                {% endif %}
+                of <strong>{{ total_jobs }}</strong> job(s)
+                {% if query %}
+                    for "<code>{{ query }}</code>"
+                {% endif %}.
+            </p>
+        </div>
+
+        <form class="d-flex mb-2" action="{{ url_for('all_jobs') }}" method="get">
+            <div class="input-shell">
+                <i class="fa-solid fa-search input-icon"></i>
+                <input type="text" name="q" class="form-control form-control-sm"
+                       placeholder="Search title, company, location, industry..."
+                       value="{{ query }}">
+            </div>
+            <button class="btn btn-outline-light btn-sm ms-2" type="submit">
+                Search
+            </button>
+        </form>
+    </div>
+
+    <!-- Filters -->
+    <form class="row g-2 mb-3 filter-row" action="{{ url_for('all_jobs') }}" method="get">
+        <div class="col-md-3">
+            <label class="form-label filter-label">Location</label>
+            <select name="location" class="form-select form-select-sm">
+                <option value="">Any</option>
+                {% for loc in locations %}
+                <option value="{{ loc }}" {% if loc == selected_location %}selected{% endif %}>
+                    {{ loc }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label filter-label">Experience Level</label>
+            <select name="experience_level" class="form-select form-select-sm">
+                <option value="">Any</option>
+                {% for lvl in experience_levels %}
+                <option value="{{ lvl }}" {% if lvl == selected_experience %}selected{% endif %}>
+                    {{ lvl }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label filter-label">Industry</label>
+            <select name="industry" class="form-select form-select-sm">
+                <option value="">Any</option>
+                {% for ind in industries %}
+                <option value="{{ ind }}" {% if ind == selected_industry %}selected{% endif %}>
+                    {{ ind }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label filter-label">Salary range</label>
+            <div class="d-flex">
+                <input type="number" name="min_salary" class="form-control form-control-sm me-1"
+                       placeholder="Min" value="{{ min_salary }}">
+                <input type="number" name="max_salary" class="form-control form-control-sm"
+                       placeholder="Max" value="{{ max_salary }}">
+            </div>
+        </div>
+
+        {% if query %}
+        <input type="hidden" name="q" value="{{ query }}">
+        {% endif %}
+
+        <div class="col-12 d-flex justify-content-end mt-1">
+            <button class="btn btn-sm btn-primary btn-glow me-2" type="submit">
+                Apply Filters
+            </button>
+            <a href="{{ url_for('all_jobs') }}" class="btn btn-sm btn-outline-light">
+                Clear
+            </a>
+        </div>
+    </form>
+
+    {% if total_jobs > 0 %}
+    <div class="table-responsive job-table-wrap">
+        <table class="table table-dark table-hover align-middle mb-0 job-table">
+            <thead>
+<tr>
+    <th>#</th>
+    <th>Job Title</th>
+    <th>Company</th>
+    <th>Location</th>
+    <th>Experience</th>
+    <th>Salary</th>
+    <th>Industry</th>
+    <th style="min-width: 220px;">Required Skills</th>
+    <th>Action</th>
+</tr>
+</thead>
+<tbody>
+{% for job in jobs %}
+<tr class="row-hover">
+    <td>{{ (page-1)*per_page + loop.index }}</td>
+    <td>{{ job.title }}</td>
+    <td>{{ job.company }}</td>
+    <td>{{ job.location }}</td>
+    <td>{{ job.experience_level }}</td>
+    <td>{{ job.salary }}</td>
+    <td>{{ job.industry }}</td>
+    <td class="small text-soft">{{ job.raw_required_skills }}</td>
+    <td>
+        <button
+            type="button"
+            class="btn btn-sm btn-outline-accent job-view-btn"
+            data-bs-toggle="modal"
+            data-bs-target="#jobDetailModal"
+            data-title="{{ job.title }}"
+            data-company="{{ job.company }}"
+            data-location="{{ job.location }}"
+            data-experience="{{ job.experience_level }}"
+            data-salary="{{ job.salary }}"
+            data-industry="{{ job.industry }}"
+            data-skills="{{ job.raw_required_skills }}"
+        >
+            View
+        </button>
+    </td>
+</tr>
+{% endfor %}
+</tbody>
+
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <nav class="mt-3">
+        <ul class="pagination justify-content-center pagination-sm">
+            <li class="page-item {% if page <= 1 %}disabled{% endif %}">
+                <a class="page-link"
+                   href="{{ url_for('all_jobs', q=query, location=selected_location,
+                                     experience_level=selected_experience, industry=selected_industry,
+                                     min_salary=min_salary, max_salary=max_salary, page=page-1) }}">
+                    Previous
+                </a>
+            </li>
+
+            {% for p in range(1, total_pages+1) %}
+                {% if p == page %}
+                <li class="page-item active"><span class="page-link">{{ p }}</span></li>
+                {% elif p <= 2 or p > total_pages-2 or (p >= page-1 and p <= page+1) %}
+                <li class="page-item">
+                    <a class="page-link"
+                       href="{{ url_for('all_jobs', q=query, location=selected_location,
+                                         experience_level=selected_experience, industry=selected_industry,
+                                         min_salary=min_salary, max_salary=max_salary, page=p) }}">
+                        {{ p }}
+                    </a>
+                </li>
+                {% elif p == 3 and page > 4 %}
+                <li class="page-item disabled"><span class="page-link">…</span></li>
+                {% elif p == total_pages-2 and page < total_pages-3 %}
+                <li class="page-item disabled"><span class="page-link">…</span></li>
+                {% endif %}
+            {% endfor %}
+
+            <li class="page-item {% if page >= total_pages %}disabled{% endif %}">
+                <a class="page-link"
+                   href="{{ url_for('all_jobs', q=query, location=selected_location,
+                                     experience_level=selected_experience, industry=selected_industry,
+                                     min_salary=min_salary, max_salary=max_salary, page=page+1) }}">
+                    Next
+                </a>
+            </li>
+        </ul>
+    </nav>
+    {% else %}
+        <div class="text-center text-soft py-5">
+            <p class="mb-1">No jobs match these filters.</p>
+            <p class="small mb-0">Try clearing some filters or adjusting your search.</p>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Job Detail Modal -->
+<div class="modal fade" id="jobDetailModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content" style="border-radius: 16px;">
+      <div class="modal-header">
+        <h5 class="modal-title" id="jobModalTitle">Job Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p class="mb-1 text-soft"><strong>Company:</strong> <span id="jobModalCompany"></span></p>
+        <p class="mb-1 text-soft"><strong>Location:</strong> <span id="jobModalLocation"></span></p>
+        <p class="mb-1 text-soft"><strong>Experience:</strong> <span id="jobModalExperience"></span></p>
+        <p class="mb-1 text-soft"><strong>Salary:</strong> <span id="jobModalSalary"></span></p>
+        <p class="mb-3 text-soft"><strong>Industry:</strong> <span id="jobModalIndustry"></span></p>
+
+        <h6 class="mb-1">Required Skills</h6>
+        <p class="small text-soft mb-0" id="jobModalSkills"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const jobDetailModal = document.getElementById('jobDetailModal');
+  if (jobDetailModal) {
+      jobDetailModal.addEventListener('show.bs.modal', function (event) {
+          const button = event.relatedTarget;
+          if (!button) return;
+
+          const title = button.getAttribute('data-title') || '';
+          const company = button.getAttribute('data-company') || '';
+          const location = button.getAttribute('data-location') || '';
+          const experience = button.getAttribute('data-experience') || '';
+          const salary = button.getAttribute('data-salary') || '';
+          const industry = button.getAttribute('data-industry') || '';
+          const skills = button.getAttribute('data-skills') || '';
+
+          document.getElementById('jobModalTitle').textContent = title;
+          document.getElementById('jobModalCompany').textContent = company;
+          document.getElementById('jobModalLocation').textContent = location;
+          document.getElementById('jobModalExperience').textContent = experience || 'N/A';
+          document.getElementById('jobModalSalary').textContent = salary || 'N/A';
+          document.getElementById('jobModalIndustry').textContent = industry || 'N/A';
+          document.getElementById('jobModalSkills').textContent = skills || 'Not specified';
+      });
+  }
+</script>
+
+
+{% endblock %}

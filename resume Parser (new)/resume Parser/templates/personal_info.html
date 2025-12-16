@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="panel-glass reveal">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h3 class="panel-title mb-1">Step 2 · Personal Profile</h3>
+                    <p class="text-soft mb-0">
+                        Tell us about yourself or auto-fill from your resume.
+                    </p>
+                </div>
+                <span class="step-pill">2 / 3</span>
+            </div>
+
+            <form method="POST" id="profile-form" class="form-styled">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Full Name</label>
+                        <div class="input-shell">
+                            <i class="fa-regular fa-user input-icon"></i>
+                            <input type="text" name="full_name" class="form-control"
+                                   value="{{ profile.full_name if profile else '' }}" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Email</label>
+                        <div class="input-shell">
+                            <i class="fa-regular fa-envelope input-icon"></i>
+                            <input type="email" name="email" class="form-control"
+                                   value="{{ profile.email if profile else session.user_email }}" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Phone</label>
+                        <div class="input-shell">
+                            <i class="fa-solid fa-phone input-icon"></i>
+                            <input type="text" name="phone" class="form-control"
+                                   value="{{ profile.phone if profile else '' }}">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Location</label>
+                        <div class="input-shell">
+                            <i class="fa-solid fa-location-dot input-icon"></i>
+                            <input type="text" name="location" class="form-control"
+                                   value="{{ profile.location if profile else '' }}"
+                                   placeholder="e.g., Hyderabad, Bangalore">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Experience Level</label>
+                        <select name="experience_level" class="form-select">
+                            {% set levels = ["Fresher", "Junior", "Mid", "Senior"] %}
+                            {% for lvl in levels %}
+                            <option value="{{ lvl }}"
+                                {% if profile and profile.experience_level == lvl %}selected{% endif %}>
+                                {{ lvl }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Skills (comma separated)</label>
+                        <textarea name="skills" class="form-control" rows="2"
+                                  placeholder="e.g., Python, Django, SQL, Data Analysis">{{ profile.skills|join(', ') if profile and profile.skills else '' }}</textarea>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-4">
+                    <span class="text-soft small">
+                        Tip: The more accurate your skills, the better the recommendations.
+                    </span>
+                    <button class="btn btn-primary btn-glow" type="submit">
+                        Save & Continue
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="panel-glass reveal">
+            <h5 class="panel-subtitle mb-2">
+                <i class="fa-solid fa-file-arrow-up me-2"></i>
+                Auto-fill from Resume
+            </h5>
+            <p class="text-soft small mb-3">
+                Upload your resume (PDF / DOCX / TXT). We’ll extract basic info and skills.
+            </p>
+
+            <form id="resume-form" class="form-styled">
+                <div class="mb-3">
+                    <input type="file" name="resume" id="resume-input" class="form-control" required>
+                </div>
+                <button type="submit" id="autofill-btn" class="btn btn-outline-accent w-100">
+                    <span id="autofill-text">
+                        <i class="fa-solid fa-wand-magic-sparkles me-1"></i>
+                        Auto-fill from Resume
+                    </span>
+                </button>
+            </form>
+
+            <div id="resume-status" class="small text-soft mt-3 d-none"></div>
+        </div>
+
+        <div class="panel-glass panel-hint mt-3 reveal">
+            <h6 class="panel-subtitle mb-1">
+                <i class="fa-solid fa-circle-nodes me-1"></i>
+                Next step
+            </h6>
+            <p class="small text-soft mb-0">
+                After saving, go to <strong>Dashboard</strong> or
+                <strong>Recommendations</strong> to see your personalized job matches.
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+    const resumeForm = document.getElementById("resume-form");
+    const resumeInput = document.getElementById("resume-input");
+    const statusBox = document.getElementById("resume-status");
+    const autofillBtn = document.getElementById("autofill-btn");
+    const autofillText = document.getElementById("autofill-text");
+
+    resumeForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+        if (!resumeInput.files.length) return;
+
+        const formData = new FormData();
+        formData.append("resume", resumeInput.files[0]);
+
+        statusBox.classList.remove("d-none");
+        statusBox.textContent = "Parsing resume with AI...";
+        autofillBtn.disabled = true;
+        autofillText.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin me-1"></i> Working...';
+
+        fetch("{{ url_for('api_parse_resume') }}", {
+            method: "POST",
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.error) throw new Error(data.error);
+            const parsed = data.parsed;
+            const form = document.getElementById("profile-form");
+
+            if (parsed.name) form.full_name.value = parsed.name;
+            if (parsed.email) form.email.value = parsed.email;
+            if (parsed.phone) form.phone.value = parsed.phone;
+            if (parsed.skills && parsed.skills.length) {
+                form.skills.value = parsed.skills.join(", ");
+            }
+
+            statusBox.textContent = "Auto-fill complete. Review your details and click Save & Continue.";
+        })
+        .catch(err => {
+            console.error(err);
+            statusBox.textContent = "Failed to parse resume: " + err.message;
+        })
+        .finally(() => {
+            autofillBtn.disabled = false;
+            autofillText.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles me-1"></i> Auto-fill from Resume';
+        });
+    });
+</script>
+{% endblock %}

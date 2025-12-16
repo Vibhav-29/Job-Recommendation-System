@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-7 col-md-9">
+        <div class="panel-glass reveal">
+            <h3 class="panel-title mb-1">User Profile</h3>
+            <p class="text-soft small mb-3">
+                Basic information stored for this session (demo mode).
+            </p>
+
+            {% if profile %}
+            <div class="row mb-2">
+                <div class="col-sm-4 text-soft small">Full Name</div>
+                <div class="col-sm-8 small">{{ profile.full_name }}</div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-sm-4 text-soft small">Email</div>
+                <div class="col-sm-8 small">{{ profile.email }}</div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-sm-4 text-soft small">Phone</div>
+                <div class="col-sm-8 small">{{ profile.phone or 'N/A' }}</div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-sm-4 text-soft small">Location</div>
+                <div class="col-sm-8 small">{{ profile.location or 'N/A' }}</div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-sm-4 text-soft small">Experience Level</div>
+                <div class="col-sm-8 small">{{ profile.experience_level or 'N/A' }}</div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-sm-4 text-soft small">Skills</div>
+                <div class="col-sm-8 small">
+                    {% if profile.skills and profile.skills|length > 0 %}
+                        {% for s in profile.skills %}
+                        <span class="badge-skill">{{ s }}</span>
+                        {% endfor %}
+                    {% else %}
+                        <span class="text-soft">No skills added</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% else %}
+            <p class="text-soft small mb-0">
+                No profile data. Please fill your personal information first.
+            </p>
+            {% endif %}
+
+            <div class="mt-3">
+                <a href="{{ url_for('personal_info') }}" class="btn btn-outline-accent">
+                    <i class="fa-solid fa-user-pen me-1"></i> Edit Profile
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

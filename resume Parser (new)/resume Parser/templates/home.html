@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="home-page">
+
+    <!-- HERO SECTION -->
+    <section class="panel-glass home-hero reveal mb-4">
+        <div class="row align-items-center g-4">
+            <!-- Hero text -->
+            <div class="col-lg-7">
+                <p class="small text-soft mb-1">Smart Job Recommendation · Powered by AI</p>
+                <h1 class="panel-title mb-2 text-uppercase">
+                    Hi {{ profile.full_name or session.user_name or 'there' }} 👋
+                </h1>
+                <p class="text-soft mb-3">
+                    JobMatch AI analyzes your <strong>skills, resume, and preferences</strong>
+                    to surface the most relevant opportunities from your job dataset.  
+                    No more scrolling through irrelevant roles — just focused, data-driven matches.
+                </p>
+
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <a href="{{ url_for('recommendations') }}" class="btn btn-primary btn-glow">
+                        <i class="fa-solid fa-wand-magic-sparkles me-1"></i>
+                        View Recommendations
+                    </a>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-accent">
+                        <i class="fa-solid fa-gauge-high me-1"></i>
+                        Open Dashboard
+                    </a>
+                    <a href="{{ url_for('personal_info') }}" class="btn btn-outline-light">
+                        <i class="fa-solid fa-user-pen me-1"></i>
+                        Edit Profile
+                    </a>
+                </div>
+
+                <!-- Soft steps (tutorial style but compact) -->
+                <div class="soft-steps">
+                    <div class="soft-step">
+                        <div class="soft-dot">1</div>
+                        <p class="small mb-0">
+                            Keep your <strong>skills & profile</strong> updated for better matches.
+                        </p>
+                    </div>
+                    <div class="soft-step">
+                        <div class="soft-dot">2</div>
+                        <p class="small mb-0">
+                            Upload a <strong>resume</strong> to auto-fill your details.
+                        </p>
+                    </div>
+                    <div class="soft-step">
+                        <div class="soft-dot">3</div>
+                        <p class="small mb-0">
+                            Explore your <strong>Dashboard</strong> & <strong>All Jobs</strong> to plan next moves.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hero illustration -->
+            <div class="col-lg-5">
+                <div class="home-hero-visual">
+                    <div class="orbit-circle orbit-1"></div>
+                    <div class="orbit-circle orbit-2"></div>
+                    <div class="home-hero-icon main-icon floating">
+                        <i class="fa-solid fa-briefcase"></i>
+                    </div>
+                    <div class="home-hero-badge badge-top floating-slow">
+                        <i class="fa-solid fa-brain me-1"></i> AI Matching
+                    </div>
+                    <div class="home-hero-badge badge-left floating-slow">
+                        <i class="fa-solid fa-file-lines me-1"></i> Resume Parsed
+                    </div>
+                    <div class="home-hero-badge badge-right floating-slow">
+                        <i class="fa-solid fa-star-half-stroke me-1"></i> Fit Score
+                    </div>
+                    <div class="home-hero-count">
+                        {{ jobs_count }}<span> Jobs</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- METRICS & HOW IT WORKS -->
+    <div class="row g-4 mb-4">
+        <!-- Metrics cards -->
+        <div class="col-lg-6">
+            <section class="panel-glass reveal">
+                <h5 class="panel-subtitle mb-3">
+                    <i class="fa-solid fa-chart-line me-1"></i> Your snapshot
+                </h5>
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="metric-card">
+                            <p class="text-soft small mb-1">Jobs in dataset</p>
+                            <h3 class="mb-0">{{ jobs_count }}</h3>
+                            <span class="metric-tag">Imported from CSV</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        {% set skill_count = (profile.skills|length) if profile and profile.skills else 0 %}
+                        <div class="metric-card">
+                            <p class="text-soft small mb-1">Skills in profile</p>
+                            <h3 class="mb-0">{{ skill_count }}</h3>
+                            <span class="metric-tag">Used for matching</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="metric-card">
+                            <p class="text-soft small mb-1">Profile status</p>
+                            <h3 class="mb-0">
+                                {% if profile %}
+                                    Ready
+                                {% else %}
+                                    Empty
+                                {% endif %}
+                            </h3>
+                            <span class="metric-tag">
+                                {% if profile %}
+                                    You can refine it anytime.
+                                {% else %}
+                                    Start by adding details.
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- How it works timeline -->
+        <div class="col-lg-6">
+            <section class="panel-glass reveal">
+                <h5 class="panel-subtitle mb-3">
+                    <i class="fa-solid fa-timeline me-1"></i> How JobMatch AI works
+                </h5>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div>
+                            <h6 class="mb-1">We parse your resume & profile</h6>
+                            <p class="small text-soft mb-0">
+                                Contact info, skills, experience, and domain keywords are extracted using NLP.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div>
+                            <h6 class="mb-1">We vectorize job descriptions</h6>
+                            <p class="small text-soft mb-0">
+                                Required skills from each job in your dataset are converted into TF-IDF vectors.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div>
+                            <h6 class="mb-1">We compute similarity scores</h6>
+                            <p class="small text-soft mb-0">
+                                Cosine similarity ranks jobs by how closely they match your skills and interests.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- BENEFITS & CALL TO ACTION -->
+    <section class="panel-glass reveal">
+        <div class="row g-4 align-items-center">
+            <div class="col-lg-5">
+                <h4 class="mb-2">Why use JobMatch AI?</h4>
+                <p class="text-soft mb-3">
+                    Instead of manually scanning every job row in your CSV, let AI surface the
+                    best opportunities for you. Use this project to demonstrate
+                    <strong>real-world NLP, resume parsing, and recommendation systems</strong>.
+                </p>
+                <ul class="benefit-list">
+                    <li><i class="fa-solid fa-check-circle me-2"></i> Great talking point for placements & interviews</li>
+                    <li><i class="fa-solid fa-check-circle me-2"></i> End-to-end pipeline: data → model → UI</li>
+                    <li><i class="fa-solid fa-check-circle me-2"></i> Easy to extend with new ML models later</li>
+                </ul>
+
+                <div class="mt-3 d-flex flex-wrap gap-2">
+                    <a href="{{ url_for('all_jobs') }}" class="btn btn-secondary btn-glow">
+                        <i class="fa-solid fa-list me-1"></i> View All Jobs
+                    </a>
+                    <a href="{{ url_for('profile') }}" class="btn btn-outline-light">
+                        <i class="fa-regular fa-circle-user me-1"></i> View Profile
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-lg-7">
+                <div class="benefit-grid">
+                    <div class="benefit-card">
+                        <i class="fa-solid fa-magnifying-glass-chart benefit-card-icon"></i>
+                        <h6>Transparent scoring</h6>
+                        <p class="small text-soft mb-0">
+                            Explainable ranking using TF-IDF + cosine similarity over your dataset.
+                        </p>
+                    </div>
+                    <div class="benefit-card">
+                        <i class="fa-solid fa-user-gear benefit-card-icon"></i>
+                        <h6>Profile-driven insights</h6>
+                        <p class="small text-soft mb-0">
+                            See how your skills align with real job requirements and what to improve.
+                        </p>
+                    </div>
+                    <div class="benefit-card">
+                        <i class="fa-solid fa-database benefit-card-icon"></i>
+                        <h6>Works offline</h6>
+                        <p class="small text-soft mb-0">
+                            Runs on your own CSV dataset — perfect for academic projects & demos.
+                        </p>
+                    </div>
+                    <div class="benefit-card">
+                        <i class="fa-solid fa-laptop-code benefit-card-icon"></i>
+                        <h6>Clean, modern UI</h6>
+                        <p class="small text-soft mb-0">
+                            Glassmorphism + animations tuned for a professional product feel.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+{% endblock %}

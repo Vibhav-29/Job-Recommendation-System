@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title or "JobMatch AI" }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+    <!-- Icons -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    >
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="bg-orbit"></div>
+<div class="bg-noise"></div>
+
+{% if not hide_nav %}
+<nav class="navbar navbar-expand-lg navbar-dark nav-glass sticky-top">
+    <div class="container-fluid px-4">
+        <!-- LEFT: profile & logout -->
+        <div class="d-flex align-items-center gap-3">
+            {% if session.user_email %}
+            <a class="nav-link nav-chip" href="{{ url_for('profile') }}">
+                <i class="fa-regular fa-user me-1"></i>
+                <span class="d-none d-sm-inline">Profile</span>
+            </a>
+            <a class="nav-link nav-chip" href="{{ url_for('logout') }}">
+                <i class="fa-solid fa-arrow-right-from-bracket me-1"></i>
+                <span class="d-none d-sm-inline">Logout</span>
+            </a>
+            {% endif %}
+        </div>
+
+        <!-- CENTER: main navigation -->
+        <div class="mx-auto text-center">
+            <button class="navbar-toggler mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#centerNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-center" id="centerNav">
+                <ul class="navbar-nav gap-2 nav-pills-shell">
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill {% if request.endpoint=='home' %}active{% endif %}"
+                           href="{{ url_for('home') }}">
+                            Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill {% if request.endpoint=='dashboard' %}active{% endif %}"
+                           href="{{ url_for('dashboard') }}">
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill {% if request.endpoint=='all_jobs' %}active{% endif %}"
+                           href="{{ url_for('all_jobs') }}">
+                            All Jobs
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-pill {% if request.endpoint=='recommendations' %}active{% endif %}"
+                           href="{{ url_for('recommendations') }}">
+                            Recommendations
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- RIGHT: logo & app name -->
+        <div class="d-flex align-items-center gap-2">
+            <div class="logo-orb">
+                <i class="fa-solid fa-briefcase"></i>
+            </div>
+            <div class="d-flex flex-column">
+                <span class="app-title">JobMatch AI</span>
+                <span class="app-subtitle d-none d-md-block">Smart Job Recommendation</span>
+            </div>
+        </div>
+    </div>
+</nav>
+{% endif %}
+
+<main class="shell container py-4">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="toast-zone">
+            {% for category, message in messages %}
+            <div class="toast-msg toast-{{ category }}">
+                <span>{{ message }}</span>
+                <button class="toast-close">&times;</button>
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // simple toast close
+    document.querySelectorAll(".toast-close").forEach(btn => {
+        btn.addEventListener("click", () => btn.parentElement.remove());
+    });
+
+    // scroll reveal
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add("reveal-in");
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.15 });
+
+    document.querySelectorAll(".reveal").forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

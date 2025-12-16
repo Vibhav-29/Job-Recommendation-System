@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Page loader -->
+<div id="page-loader" class="page-loader active">
+    <div class="loader-inner">
+        <div class="loader-circle"></div>
+        <div class="loader-logo">
+            <div class="logo-orb big mb-2">
+                <i class="fa-solid fa-briefcase"></i>
+            </div>
+            <div class="loader-text-main">JobMatch AI</div>
+            <div class="loader-text-sub">Finding jobs that match <span>you</span>…</div>
+        </div>
+    </div>
+</div>
+
+<div class="auth-wrapper">
+    <!-- Left side: gradient text / info -->
+    <div class="auth-left d-none d-lg-flex">
+        <div class="auth-left-inner">
+            <h1 class="mb-3">Smart Job<br>Recommendation System</h1>
+            <p class="text-soft mb-4">
+                Upload your resume, build your profile, and let JobMatch AI
+                recommend roles from your dataset using NLP and machine learning.
+            </p>
+            <ul class="auth-points">
+                <li><i class="fa-solid fa-sparkles me-2"></i> Resume parsing &amp; skill extraction</li>
+                <li><i class="fa-solid fa-chart-line me-2"></i> TF-IDF + cosine similarity matching</li>
+                <li><i class="fa-solid fa-table-list me-2"></i> Dashboard, all jobs view &amp; filters</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Right side: glass card -->
+    <div class="auth-right">
+        <div class="panel-glass panel-auth auth-glass reveal auth-card">
+            <div class="text-center mb-4">
+                <div class="logo-orb big mb-3">
+                    <i class="fa-solid fa-briefcase"></i>
+                </div>
+                <h2 class="panel-title mb-1">Welcome to JobMatch AI</h2>
+                <p class="text-soft mb-0">Sign in to get personalized job matches</p>
+            </div>
+
+            <ul class="nav nav-pills auth-tabs mb-3" id="authTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="login-tab" data-bs-toggle="pill"
+                            data-bs-target="#login-pane" type="button" role="tab">
+                        <i class="fa-solid fa-right-to-bracket me-1"></i> Login
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="signup-tab" data-bs-toggle="pill"
+                            data-bs-target="#signup-pane" type="button" role="tab">
+                        <i class="fa-regular fa-user me-1"></i> Sign Up
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+                <!-- Login -->
+                <div class="tab-pane fade show active" id="login-pane" role="tabpanel">
+                    <form method="POST" class="form-styled auth-form">
+                        <input type="hidden" name="form_type" value="login">
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <div class="input-shell">
+                                <i class="fa-regular fa-envelope input-icon"></i>
+                                <input type="email" name="login_email" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Password</label>
+                            <div class="input-shell">
+                                <i class="fa-solid fa-lock input-icon"></i>
+                                <input type="password" name="login_password" id="login_password" class="form-control" required>
+                                <button type="button"
+                                        class="password-toggle"
+                                        data-target="#login_password"
+                                        aria-label="Show password">
+                                    <i class="fa-regular fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary w-100 btn-glow" type="submit">
+                            <span class="btn-text">Continue</span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Sign up -->
+                <div class="tab-pane fade" id="signup-pane" role="tabpanel">
+                    <form method="POST" class="form-styled auth-form">
+                        <input type="hidden" name="form_type" value="signup">
+                        <div class="mb-3">
+                            <label class="form-label">Full Name</label>
+                            <div class="input-shell">
+                                <i class="fa-regular fa-user input-icon"></i>
+                                <input type="text" name="signup_name" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <div class="input-shell">
+                                <i class="fa-regular fa-envelope input-icon"></i>
+                                <input type="email" name="signup_email" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Password</label>
+                            <div class="input-shell">
+                                <i class="fa-solid fa-lock input-icon"></i>
+                                <input type="password" name="signup_password" id="signup_password" class="form-control" required>
+                                <button type="button"
+                                        class="password-toggle"
+                                        data-target="#signup_password"
+                                        aria-label="Show password">
+                                    <i class="fa-regular fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <button class="btn btn-success w-100 btn-glow" type="submit">
+                            <span class="btn-text">Create Account</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Option A: relevant, simple message -->
+            <p class="text-soft small text-center mt-4 mb-0">
+                Powered by AI to help you discover jobs that match your skills.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Page-specific JS -->
+<script>
+    // Initial page loader
+    window.addEventListener("load", function () {
+        const loader = document.getElementById("page-loader");
+        if (loader) {
+            setTimeout(() => {
+                loader.classList.remove("active");
+                loader.classList.add("hidden");
+            }, 700);
+        }
+    });
+
+    // Button loading state on form submit
+    document.querySelectorAll(".auth-form").forEach(form => {
+        form.addEventListener("submit", () => {
+            const btn = form.querySelector("button[type='submit']");
+            if (btn && !btn.disabled) {
+                btn.disabled = true;
+                const textSpan = btn.querySelector(".btn-text");
+                if (textSpan) {
+                    textSpan.innerHTML =
+                        '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>Processing...';
+                } else {
+                    btn.innerHTML =
+                        '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>Processing...';
+                }
+            }
+        });
+    });
+
+    // Password show/hide toggle
+    document.querySelectorAll(".password-toggle").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const targetSelector = btn.getAttribute("data-target");
+            const input = document.querySelector(targetSelector);
+            if (!input) return;
+
+            const icon = btn.querySelector("i");
+            if (input.type === "password") {
+                input.type = "text";
+                if (icon) {
+                    icon.classList.remove("fa-eye");
+                    icon.classList.add("fa-eye-slash");
+                }
+                btn.setAttribute("aria-label", "Hide password");
+            } else {
+                input.type = "password";
+                if (icon) {
+                    icon.classList.remove("fa-eye-slash");
+                    icon.classList.add("fa-eye");
+                }
+                btn.setAttribute("aria-label", "Show password");
+            }
+        });
+    });
+</script>
+
+{% endblock %}
